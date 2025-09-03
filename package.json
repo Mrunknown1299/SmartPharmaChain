@@ -1,0 +1,40 @@
+{
+  "name": "smartmedichain",
+  "version": "1.0.0",
+  "description": "A Blockchain and RFID-Enabled Pharmaceutical Supply Chain",
+  "main": "index.js",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "deploy": "npx hardhat run scripts/deploy.js --network sepolia",
+    "deploy-local": "npx hardhat run scripts/deploy.js --network localhost",
+    "node": "npx hardhat node",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "backend": "cd backend && npm start",
+    "frontend": "cd frontend && npm start",
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && npm start",
+    "vercel-build": "npm run install-all && npm run build"
+  },
+  "keywords": [
+    "blockchain",
+    "pharmaceutical",
+    "supply-chain",
+    "ethereum",
+    "smart-contracts",
+    "rfid",
+    "qr-code"
+  ],
+  "author": "SmartMediChain Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "hardhat": "^2.17.0",
+    "concurrently": "^8.2.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.0",
+    "dotenv": "^16.3.1"
+  }
+}
