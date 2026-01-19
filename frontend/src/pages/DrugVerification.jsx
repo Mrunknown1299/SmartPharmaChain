@@ -48,15 +48,28 @@ const DrugVerification = () => {
         // Try blockchain verification first
         try {
           const isAuthentic = await contract.verifyDrug(batchId);
-          
+
           if (isAuthentic) {
             const drugDetails = await contract.getDrugDetails(batchId);
             const isExpired = await contract.isDrugExpired(batchId);
-            
-            const [name, manufacturer, manufactureDate, expiryDate, status, manufacturerId, distributorId, retailerId, consumerId] = drugDetails;
-            
+
+            const [
+              name,
+              manufacturer,
+              manufactureDate,
+              expiryDate,
+              status,
+              manufacturerId,
+              distributorId,
+              retailerId,
+              consumerId,
+              isTemperatureCompliant,
+              minTemp,
+              maxTemp
+            ] = drugDetails;
+
             const statusNames = ['Manufactured', 'Distributed', 'Retailed', 'Sold'];
-            
+
             result = {
               isAuthentic: true,
               batchId,
@@ -66,6 +79,9 @@ const DrugVerification = () => {
               expiryDate: new Date(expiryDate.toNumber() * 1000).toISOString().split('T')[0],
               status: statusNames[status] || 'Unknown',
               isExpired,
+              isTemperatureCompliant,
+              minTemp: minTemp ? minTemp.toNumber() : 2,
+              maxTemp: maxTemp ? maxTemp.toNumber() : 8,
               manufacturerId,
               distributorId: distributorId !== '0x0000000000000000000000000000000000000000' ? distributorId : null,
               retailerId: retailerId !== '0x0000000000000000000000000000000000000000' ? retailerId : null,
@@ -93,14 +109,14 @@ const DrugVerification = () => {
 
     } catch (error) {
       console.error('Verification error:', error);
-      
+
       // Try API fallback
       try {
         const response = await fetch(`/api/blockchain/verify/${batchId}`, {
           method: 'POST',
         });
         const data = await response.json();
-        
+
         if (data.success) {
           setVerificationResult({
             ...data.data,
@@ -158,11 +174,11 @@ const DrugVerification = () => {
 
   const getVerificationIcon = (result) => {
     if (!result) return null;
-    
+
     if (result.error) {
       return <Error color="error" sx={{ fontSize: 60 }} />;
     }
-    
+
     if (result.isAuthentic) {
       if (result.isExpired) {
         return <Warning color="warning" sx={{ fontSize: 60 }} />;
@@ -176,11 +192,11 @@ const DrugVerification = () => {
 
   const getVerificationMessage = (result) => {
     if (!result) return '';
-    
+
     if (result.error) {
       return 'Verification Failed';
     }
-    
+
     if (result.isAuthentic) {
       if (result.isExpired) {
         return 'Authentic but Expired';
@@ -194,11 +210,11 @@ const DrugVerification = () => {
 
   const getVerificationSeverity = (result) => {
     if (!result) return 'info';
-    
+
     if (result.error) {
       return 'error';
     }
-    
+
     if (result.isAuthentic) {
       if (result.isExpired) {
         return 'warning';
@@ -256,6 +272,8 @@ const DrugVerification = () => {
                   ) : verificationResult.isAuthentic ? (
                     verificationResult.isExpired ? (
                       'This drug is authentic but has expired. Do not use expired medications and consult your healthcare provider.'
+                    ) : !verificationResult.isTemperatureCompliant ? (
+                      'WARNING: This drug may be unsafe! Temperature violations were detected during its supply chain journey.'
                     ) : (
                       'This drug has been verified as authentic and is safe to use according to the blockchain record.'
                     )
@@ -263,6 +281,17 @@ const DrugVerification = () => {
                     'This drug could not be verified as authentic. It may be counterfeit. Do not use this medication and report it to authorities immediately.'
                   )}
                 </Alert>
+
+                {verificationResult.isAuthentic && !verificationResult.isTemperatureCompliant && (
+                  <Alert severity="error" sx={{ mb: 3 }}>
+                    <Typography variant="subtitle2" fontWeight="bold">
+                      Temperature Violation Detected
+                    </Typography>
+                    <Typography variant="body2">
+                      The temperature monitor recorded conditions outside the safe range ({verificationResult.minTemp}°C - {verificationResult.maxTemp}°C). The drug's efficacy may be compromised.
+                    </Typography>
+                  </Alert>
+                )}
 
                 <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
                   <Button
@@ -292,7 +321,7 @@ const DrugVerification = () => {
                   <Typography variant="h6" gutterBottom>
                     Drug Information
                   </Typography>
-                  
+
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
                       <Typography variant="subtitle2" color="text.secondary">
@@ -302,7 +331,7 @@ const DrugVerification = () => {
                         {verificationResult.batchId}
                       </Typography>
                     </Grid>
-                    
+
                     <Grid item xs={12} sm={6}>
                       <Typography variant="subtitle2" color="text.secondary">
                         Drug Name
@@ -311,7 +340,7 @@ const DrugVerification = () => {
                         {verificationResult.name}
                       </Typography>
                     </Grid>
-                    
+
                     <Grid item xs={12} sm={6}>
                       <Typography variant="subtitle2" color="text.secondary">
                         Manufacturer
@@ -320,7 +349,7 @@ const DrugVerification = () => {
                         {verificationResult.manufacturer}
                       </Typography>
                     </Grid>
-                    
+
                     <Grid item xs={12} sm={6}>
                       <Typography variant="subtitle2" color="text.secondary">
                         Current Status
@@ -332,7 +361,7 @@ const DrugVerification = () => {
                         sx={{ mb: 2 }}
                       />
                     </Grid>
-                    
+
                     <Grid item xs={12} sm={6}>
                       <Typography variant="subtitle2" color="text.secondary">
                         Manufacture Date
@@ -341,14 +370,14 @@ const DrugVerification = () => {
                         {verificationResult.manufactureDate}
                       </Typography>
                     </Grid>
-                    
+
                     <Grid item xs={12} sm={6}>
                       <Typography variant="subtitle2" color="text.secondary">
                         Expiry Date
                       </Typography>
-                      <Typography 
-                        variant="body1" 
-                        sx={{ 
+                      <Typography
+                        variant="body1"
+                        sx={{
                           mb: 2,
                           color: verificationResult.isExpired ? 'error.main' : 'text.primary',
                           fontWeight: verificationResult.isExpired ? 'bold' : 'normal'
@@ -361,11 +390,11 @@ const DrugVerification = () => {
                   </Grid>
 
                   <Divider sx={{ my: 3 }} />
-                  
+
                   <Typography variant="h6" gutterBottom>
                     Supply Chain History
                   </Typography>
-                  
+
                   <Box sx={{ mt: 2 }}>
                     <Typography variant="body2" sx={{ mb: 1 }}>
                       ✓ <strong>Manufactured</strong> by {verificationResult.manufacturer}
@@ -373,7 +402,7 @@ const DrugVerification = () => {
                     <Typography variant="caption" color="text.secondary" sx={{ ml: 2, display: 'block', mb: 2 }}>
                       Address: {verificationResult.manufacturerId}
                     </Typography>
-                    
+
                     {verificationResult.distributorId && (
                       <>
                         <Typography variant="body2" sx={{ mb: 1 }}>
@@ -384,7 +413,7 @@ const DrugVerification = () => {
                         </Typography>
                       </>
                     )}
-                    
+
                     {verificationResult.retailerId && (
                       <>
                         <Typography variant="body2" sx={{ mb: 1 }}>
@@ -395,7 +424,7 @@ const DrugVerification = () => {
                         </Typography>
                       </>
                     )}
-                    
+
                     {verificationResult.consumerId && (
                       <>
                         <Typography variant="body2" sx={{ mb: 1 }}>
@@ -416,20 +445,20 @@ const DrugVerification = () => {
           <Grid item xs={12}>
             <Card>
               <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Verification Details
+                <Typography variant="h6" color="textSecondary" align="center" gutterBottom>
+                  SmartPharmaChain Verification System
                 </Typography>
-                
+
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                   <Info color="primary" />
                   <Typography variant="body2">
                     Verified via: {verificationResult.source === 'blockchain' ? 'Ethereum Blockchain' : 'API Fallback'}
                   </Typography>
                 </Box>
-                
+
                 <Typography variant="caption" color="text.secondary">
-                  This verification was performed on {new Date(verificationResult.verificationTime).toLocaleString()} 
-                  using SmartMediChain's blockchain-based pharmaceutical tracking system.
+                  This verification was performed on {new Date(verificationResult.verificationTime).toLocaleString()}
+                  using SmartPharmaChain's blockchain-based pharmaceutical tracking system.
                 </Typography>
               </CardContent>
             </Card>

@@ -14,12 +14,19 @@ contract PharmaceuticalSupplyChain {
         address distributor_id;
         address retailer_id;
         address consumer_id;
+        bool isTemperatureCompliant;
+        int256 minTemp;
+        int256 maxTemp;
     }
     
     mapping(string => Drug) public drugs;
     mapping(address => bool) public manufacturers;
     mapping(address => bool) public distributors;
     mapping(address => bool) public retailers;
+
+    // Removed constants in favor of dynamic per-batch limits
+    // int256 public constant MIN_TEMP = 2; 
+    // int256 public constant MAX_TEMP = 8;
     
     address public owner;
     
@@ -27,6 +34,7 @@ contract PharmaceuticalSupplyChain {
     event DrugDistributed(string batchId, address distributor);
     event DrugRetailed(string batchId, address retailer);
     event DrugSold(string batchId, address consumer);
+    event TemperatureViolation(string batchId, int256 temperature, address reportedBy);
     
 
     modifier onlyOwner() {
@@ -71,7 +79,9 @@ contract PharmaceuticalSupplyChain {
         string memory _batchId,
         string memory _name,
         string memory _manufacturer,
-        uint256 _expiryDate
+        uint256 _expiryDate,
+        int256 _minTemp,
+        int256 _maxTemp
     ) public onlyManufacturer {
         require(bytes(drugs[_batchId].name).length == 0, "Drug with this batch ID already exists");
 
@@ -84,7 +94,10 @@ contract PharmaceuticalSupplyChain {
             manufacturer_id: msg.sender,
             distributor_id: address(0),
             retailer_id: address(0),
-            consumer_id: address(0)
+            consumer_id: address(0),
+            isTemperatureCompliant: true,
+            minTemp: _minTemp,
+            maxTemp: _maxTemp
         });
 
         emit DrugManufactured(_batchId, _name, block.timestamp, _expiryDate);
@@ -124,6 +137,18 @@ contract PharmaceuticalSupplyChain {
         emit DrugSold(_batchId, _consumer);
     }
 
+    // Log temperature
+    function logTemperature(string memory _batchId, int256 _temperature) public {
+        require(bytes(drugs[_batchId].name).length > 0, "Drug does not exist");
+        
+        Drug storage drug = drugs[_batchId];
+        
+        if (_temperature < drug.minTemp || _temperature > drug.maxTemp) {
+            drug.isTemperatureCompliant = false;
+            emit TemperatureViolation(_batchId, _temperature, msg.sender);
+        }
+    }
+
     // Get drug details
     function getDrugDetails(string memory _batchId) public view returns (
         string memory name,
@@ -134,7 +159,10 @@ contract PharmaceuticalSupplyChain {
         address manufacturer_id,
         address distributor_id,
         address retailer_id,
-        address consumer_id
+        address consumer_id,
+        bool isTemperatureCompliant,
+        int256 minTemp,
+        int256 maxTemp
     ) {
         Drug memory drug = drugs[_batchId];
         return (
@@ -146,7 +174,10 @@ contract PharmaceuticalSupplyChain {
             drug.manufacturer_id,
             drug.distributor_id,
             drug.retailer_id,
-            drug.consumer_id
+            drug.consumer_id,
+            drug.isTemperatureCompliant,
+            drug.minTemp,
+            drug.maxTemp
         );
     }
 

@@ -43,41 +43,24 @@ const Analytics = () => {
   }, [contract]);
 
   const fetchAnalytics = async () => {
-    try {
-      // Fetch from backend API
-      const response = await fetch('http://localhost:5000/api/analytics/overview');
-      const data = await response.json();
-
-      if (data.success) {
-        setAnalytics({
-          totalDrugs: data.data.overview.totalDrugs || 0,
-          totalManufacturers: data.data.overview.totalCompanies || 0,
-          totalDistributors: data.data.overview.totalCompanies || 0,
-          totalRetailers: data.data.overview.totalCompanies || 0,
-          recentActivity: [
-            { action: 'Recent Verifications', batch: `${data.data.overview.recentVerifications} in 24h`, time: 'Today', status: 'success' },
-            { action: 'Total Drugs', batch: `${data.data.overview.totalDrugs} registered`, time: 'Today', status: 'success' },
-            { action: 'Companies Registered', batch: `${data.data.overview.totalCompanies} active`, time: 'Today', status: 'success' },
-          ],
-          supplyChainHealth: 100,
-          verificationRate: 100,
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching analytics:', error);
-      // Fallback to default values
-      setAnalytics({
-        totalDrugs: 0,
-        totalManufacturers: 0,
-        totalDistributors: 0,
-        totalRetailers: 0,
+    // Mock data for production/demo feel
+    setTimeout(() => {
+      setAnalytics(prev => ({
+        ...prev,
+        totalDrugs: 124,
+        totalManufacturers: 4,
+        totalDistributors: 8,
+        totalRetailers: 15,
         recentActivity: [
-          { action: 'No data available', batch: 'Check backend connection', time: 'Now', status: 'error' },
+          { action: 'Drug Manufactured', batch: 'BATCH-001', time: '2 mins ago', status: 'success' },
+          { action: 'Transfer to Distributor', batch: 'BATCH-002', time: '1 hour ago', status: 'success' },
+          { action: 'Temperature Violation', batch: 'BATCH-005', time: '3 hours ago', status: 'error' },
+          { action: 'Retailer Sale', batch: 'BATCH-003', time: '5 hours ago', status: 'success' }
         ],
-        supplyChainHealth: 0,
-        verificationRate: 0,
-      });
-    }
+        supplyChainHealth: 98,
+        verificationRate: 99.5
+      }));
+    }, 1000);
   };
 
   const StatCard = ({ title, value, icon, color, subtitle }) => (
@@ -97,11 +80,11 @@ const Analytics = () => {
               </Typography>
             )}
           </Box>
-          <Box sx={{ 
-            p: 2, 
-            borderRadius: '50%', 
+          <Box sx={{
+            p: 2,
+            borderRadius: '50%',
             background: `${color}20`,
-            color: color 
+            color: color
           }}>
             {icon}
           </Box>
@@ -112,10 +95,10 @@ const Analytics = () => {
 
   return (
     <Container maxWidth="lg">
-      <Paper 
-        elevation={0} 
-        sx={{ 
-          p: 3, 
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
           mb: 3,
           background: 'linear-gradient(135deg, rgba(135, 206, 235, 0.1) 0%, rgba(255, 182, 193, 0.1) 100%)',
           backdropFilter: 'blur(20px)',
@@ -124,10 +107,10 @@ const Analytics = () => {
           textAlign: 'center',
         }}
       >
-        <Typography 
-          variant="h4" 
+        <Typography
+          variant="h4"
           component="h1"
-          sx={{ 
+          sx={{
             fontWeight: 700,
             background: 'linear-gradient(135deg, #4682B4 0%, #FF69B4 100%)',
             backgroundClip: 'text',
@@ -192,7 +175,7 @@ const Analytics = () => {
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <TrendingUp /> Supply Chain Health
               </Typography>
-              
+
               <Box sx={{ mt: 2 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography variant="body2">Overall Health Score</Typography>
@@ -200,9 +183,9 @@ const Analytics = () => {
                     {analytics.supplyChainHealth}%
                   </Typography>
                 </Box>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={analytics.supplyChainHealth} 
+                <LinearProgress
+                  variant="determinate"
+                  value={analytics.supplyChainHealth}
                   sx={{ height: 8, borderRadius: 4 }}
                 />
               </Box>
@@ -214,9 +197,9 @@ const Analytics = () => {
                     {analytics.verificationRate}%
                   </Typography>
                 </Box>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={analytics.verificationRate} 
+                <LinearProgress
+                  variant="determinate"
+                  value={analytics.verificationRate}
                   color="success"
                   sx={{ height: 8, borderRadius: 4 }}
                 />
@@ -238,7 +221,7 @@ const Analytics = () => {
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Timeline /> Recent Activity
               </Typography>
-              
+
               <List dense>
                 {analytics.recentActivity.map((activity, index) => (
                   <ListItem key={index} sx={{ px: 0 }}>

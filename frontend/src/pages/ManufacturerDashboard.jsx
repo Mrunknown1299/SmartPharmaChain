@@ -22,7 +22,7 @@ const ManufacturerDashboard = () => {
   const { account, contract, isCorrectNetwork } = useWeb3();
   const [loading, setLoading] = useState(false);
   const [qrCodeData, setQrCodeData] = useState(null);
-  
+
   const [drugForm, setDrugForm] = useState({
     batchId: '',
     name: '',
@@ -56,68 +56,87 @@ const ManufacturerDashboard = () => {
       return;
     }
 
-    if (!drugForm.batchId || !drugForm.name || !drugForm.manufacturer || !drugForm.expiryDate) {
+    if (!drugForm.batchId || !drugForm.name || !drugForm.manufacturer || !drugForm.expiryDate || drugForm.minTemp === '' || drugForm.maxTemp === '') {
       toast.error('Please fill in all required fields');
       return;
     }
 
+    console.log("Manufacturing Drug with data:", {
+      batchId: drugForm.batchId,
+      name: drugForm.name,
+      manufacturer: drugForm.manufacturer,
+      expiryDate: drugForm.expiryDate,
+      minTemp: drugForm.minTemp, // Added to log
+      maxTemp: drugForm.maxTemp  // Added to log
+    });
+
     setLoading(true);
     try {
       const expiryTimestamp = Math.floor(new Date(drugForm.expiryDate).getTime() / 1000);
-      
+
+      console.log("Sending transaction...");
       const tx = await contract.manufactureDrug(
         drugForm.batchId,
         drugForm.name,
         drugForm.manufacturer,
-        expiryTimestamp
+        expiryTimestamp,
+        parseInt(drugForm.minTemp), // Added to contract call
+        parseInt(drugForm.maxTemp)  // Added to contract call
       );
+      console.log("Transaction sent:", tx.hash);
 
       toast.info('Transaction submitted. Waiting for confirmation...');
-      await tx.wait();
+      const receipt = await tx.wait();
+      console.log("Transaction confirmed:", receipt);
 
-      toast.success('Drug manufactured successfully!');
-      
-      // Generate QR code
-      await generateQRCode();
-      
-      // Reset form
-      setDrugForm({
-        batchId: '',
-        name: '',
-        manufacturer: '',
-        expiryDate: '',
-        description: '',
-        dosage: '',
-      });
+      if (receipt.status === 1) {
+        toast.success('Drug manufactured successfully!');
+        // Generate QR code
+        await generateQRCode();
+
+        // Reset form
+        setDrugForm({
+          batchId: '',
+          name: '',
+          manufacturer: '',
+          expiryDate: '',
+          description: '',
+          dosage: '',
+        });
+      } else {
+        throw new Error("Transaction failed on-chain.");
+      }
 
     } catch (error) {
       console.error('Error manufacturing drug:', error);
-      toast.error('Failed to manufacture drug: ' + error.message);
+      // Extract revert reason if possible
+      const errorMessage = error.reason || error.data?.message || error.message || "Unknown error";
+      toast.error('Failed to manufacture drug: ' + errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
   const generateQRCode = async () => {
+    // Client-side QR Code Generation (More reliable without backend)
     try {
-      const response = await fetch('/api/qr/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          batchId: drugForm.batchId,
-          frontendUrl: window.location.origin,
-        }),
-      });
+      const baseUrl = window.location.origin;
+      const verificationUrl = `${baseUrl}/verify/${drugForm.batchId}`;
 
-      const data = await response.json();
-      if (data.success) {
-        setQrCodeData(data.data);
-        toast.success('QR code generated successfully!');
-      } else {
-        toast.error('Failed to generate QR code');
-      }
+      const qrData = {
+        batchId: drugForm.batchId,
+        verificationUrl: verificationUrl,
+        timestamp: new Date().toISOString()
+      };
+
+      console.log("Generated QR Data Client-side:", qrData);
+
+      // Simulate API delay for UX
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      setQrCodeData(qrData);
+      toast.success('QR code generated successfully!');
+
     } catch (error) {
       console.error('Error generating QR code:', error);
       toast.error('Failed to generate QR code');
@@ -135,11 +154,45 @@ const ManufacturerDashboard = () => {
     link.click();
   };
 
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [checkingRegistration, setCheckingRegistration] = useState(true);
+
+  React.useEffect(() => {
+    const checkRegistration = async () => {
+      if (contract && account) {
+        try {
+          const result = await contract.manufacturers(account);
+          console.log("Is registered manufacturer:", result);
+          setIsRegistered(result);
+        } catch (error) {
+          console.error("Error checking registration:", error);
+        } finally {
+          setCheckingRegistration(false);
+        }
+      }
+    };
+    checkRegistration();
+  }, [contract, account]);
+
   if (!account) {
     return (
       <Container maxWidth="md">
         <Alert severity="warning" sx={{ mt: 2 }}>
           Please connect your wallet to access the Manufacturer Dashboard.
+        </Alert>
+      </Container>
+    );
+  }
+
+  if (checkingRegistration) {
+    return <Container maxWidth="md"><CircularProgress sx={{ mt: 4 }} /></Container>;
+  }
+
+  if (!isRegistered) {
+    return (
+      <Container maxWidth="md">
+        <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
+          You are not registered as a Manufacturer. Please contact the Admin to register your wallet address ({account}).
         </Alert>
       </Container>
     );
@@ -217,7 +270,7 @@ const ManufacturerDashboard = () => {
                 <Add sx={{ mr: 1, verticalAlign: 'middle' }} />
                 Register New Drug
               </Typography>
-              
+
               <Box component="form" sx={{ mt: 2 }}>
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
@@ -240,7 +293,7 @@ const ManufacturerDashboard = () => {
                       </Button>
                     </Box>
                   </Grid>
-                  
+
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
@@ -252,7 +305,7 @@ const ManufacturerDashboard = () => {
                       placeholder="e.g., Paracetamol"
                     />
                   </Grid>
-                  
+
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
@@ -264,7 +317,7 @@ const ManufacturerDashboard = () => {
                       placeholder="e.g., PharmaCorp Ltd."
                     />
                   </Grid>
-                  
+
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
@@ -275,9 +328,32 @@ const ManufacturerDashboard = () => {
                       onChange={handleInputChange}
                       required
                       InputLabelProps={{ shrink: true }}
+                      variant="outlined"
                     />
                   </Grid>
-                  
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Min Temperature (°C)"
+                      name="minTemp"
+                      type="number"
+                      value={drugForm.minTemp}
+                      onChange={handleInputChange}
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Max Temperature (°C)"
+                      name="maxTemp"
+                      type="number"
+                      value={drugForm.maxTemp}
+                      onChange={handleInputChange}
+                      variant="outlined"
+                    />
+                  </Grid>
+
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
@@ -290,7 +366,7 @@ const ManufacturerDashboard = () => {
                       placeholder="Drug description and usage instructions"
                     />
                   </Grid>
-                  
+
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
@@ -301,7 +377,7 @@ const ManufacturerDashboard = () => {
                       placeholder="e.g., 500mg tablets"
                     />
                   </Grid>
-                  
+
                   <Grid item xs={12}>
                     <Button
                       fullWidth
@@ -331,7 +407,7 @@ const ManufacturerDashboard = () => {
                 <QrCode sx={{ mr: 1, verticalAlign: 'middle' }} />
                 Generated QR Code
               </Typography>
-              
+
               {qrCodeData ? (
                 <Box sx={{
                   textAlign: 'center',

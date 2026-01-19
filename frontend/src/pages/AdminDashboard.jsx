@@ -41,7 +41,7 @@ const AdminDashboard = () => {
     distributors: [],
     retailers: [],
   });
-  
+
   const [newStakeholder, setNewStakeholder] = useState({
     address: '',
     type: 'manufacturer',
@@ -58,7 +58,7 @@ const AdminDashboard = () => {
 
   const checkOwnership = async () => {
     if (!contract || !account) return;
-    
+
     try {
       const owner = await contract.owner();
       setContractOwner(owner);
@@ -103,10 +103,10 @@ const AdminDashboard = () => {
 
       toast.success(`${newStakeholder.type} registered successfully!`);
       setNewStakeholder({ address: '', type: 'manufacturer' });
-      
+
       // Refresh the list
       // Note: In a real app, you'd query events or maintain a list
-      
+
     } catch (error) {
       console.error('Error registering stakeholder:', error);
       toast.error('Failed to register stakeholder: ' + error.message);
@@ -169,53 +169,17 @@ const AdminDashboard = () => {
   return (
     <Container maxWidth="lg">
       {/* Header */}
-      <Paper 
-        elevation={0} 
-        sx={{ 
-          p: 3, 
-          mb: 3,
-          background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.1) 0%, rgba(233, 30, 99, 0.1) 100%)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(156, 39, 176, 0.2)',
-          borderRadius: 2,
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <Box
-            sx={{
-              width: 50,
-              height: 50,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #9c27b0 0%, #e91e63 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              mr: 2,
-            }}
-          >
-            <AdminPanelSettings sx={{ fontSize: 28, color: 'white' }} />
-          </Box>
-          <Box>
-            <Typography 
-              variant="h5" 
-              component="h1"
-              sx={{ 
-                fontWeight: 600,
-                background: 'linear-gradient(135deg, #9c27b0 0%, #e91e63 100%)',
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                fontSize: '1.1rem',
-              }}
-            >
-              Admin Dashboard
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
-              Manage stakeholder registrations and system settings
-            </Typography>
-          </Box>
-        </Box>
-      </Paper>
+      {/* Header */}
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom color="primary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <AdminPanelSettings fontSize="large" />
+          Admin Dashboard
+        </Typography>
+        <Typography variant="body1" color="textSecondary">
+          Manage stakeholder registrations and system settings
+        </Typography>
+        <Divider sx={{ mt: 2 }} />
+      </Box>
 
       <Grid container spacing={3}>
         {/* Register New Stakeholder */}
@@ -226,7 +190,7 @@ const AdminDashboard = () => {
                 <PersonAdd sx={{ fontSize: 20 }} />
                 Register New Stakeholder
               </Typography>
-              
+
               <Box sx={{ mt: 2 }}>
                 <TextField
                   fullWidth
@@ -259,7 +223,7 @@ const AdminDashboard = () => {
                   <option value="distributor">Distributor</option>
                   <option value="retailer">Retailer</option>
                 </TextField>
-                
+
                 <Button
                   fullWidth
                   variant="contained"
@@ -287,7 +251,7 @@ const AdminDashboard = () => {
               <Typography variant="h6" gutterBottom sx={{ fontSize: '1rem' }}>
                 Quick Actions
               </Typography>
-              
+
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 2 }}>
                 <Button
                   variant="outlined"
@@ -325,7 +289,7 @@ const AdminDashboard = () => {
               <Typography variant="h6" gutterBottom sx={{ fontSize: '1rem' }}>
                 System Information
               </Typography>
-              
+
               <Grid container spacing={2} sx={{ mt: 1 }}>
                 <Grid item xs={12} sm={6}>
                   <Box sx={{ p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
@@ -364,7 +328,7 @@ const AdminDashboard = () => {
                     </Box>
                   </Box>
                 </Grid>
-                
+
                 <Grid item xs={12} sm={6}>
                   <Box sx={{ p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
                     <Typography variant="body2" color="text.secondary">

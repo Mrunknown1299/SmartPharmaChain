@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { toast } from 'react-toastify';
+import ContractAddress from '../contracts/contract-address.json';
+import ContractArtifact from '../contracts/PharmaceuticalSupplyChain.json';
 
 const Web3Context = createContext();
 
@@ -21,25 +23,10 @@ export const Web3Provider = ({ children }) => {
   const [chainId, setChainId] = useState(null);
 
   // Contract configuration
-  const CONTRACT_ADDRESS = process.env.REACT_APP_CONTRACT_ADDRESS || "0x279fFe8FB7A99D6AE2C3295485a7f8E946980Dc7";
-console.log('Environment CONTRACT_ADDRESS:', process.env.REACT_APP_CONTRACT_ADDRESS);
-console.log('Final CONTRACT_ADDRESS:', CONTRACT_ADDRESS);
-  const CONTRACT_ABI = [
-    "function manufactureDrug(string memory _batchId, string memory _name, string memory _manufacturer, uint256 _expiryDate) public",
-    "function distributeDrug(string memory _batchId) public",
-    "function retailDrug(string memory _batchId) public",
-    "function sellDrug(string memory _batchId, address _consumer) public",
-    "function getDrugDetails(string memory _batchId) public view returns (string memory, string memory, uint256, uint256, uint8, address, address, address, address)",
-    "function verifyDrug(string memory _batchId) public view returns (bool)",
-    "function isDrugExpired(string memory _batchId) public view returns (bool)",
-    "function registerManufacturer(address _manufacturer) public",
-    "function registerDistributor(address _distributor) public",
-    "function registerRetailer(address _retailer) public",
-    "function manufacturers(address) public view returns (bool)",
-    "function distributors(address) public view returns (bool)",
-    "function retailers(address) public view returns (bool)",
-    "function owner() public view returns (address)"
-  ];
+  // Automatically load the deployed address and ABI
+  const CONTRACT_ADDRESS = ContractAddress.PharmaceuticalSupplyChain;
+  // Use .abi from the artifact
+  const CONTRACT_ABI = ContractArtifact.abi;
 
   // Connect to MetaMask
   const connectWallet = async () => {
@@ -167,8 +154,13 @@ console.log('Final CONTRACT_ADDRESS:', CONTRACT_ADDRESS);
       });
 
       window.ethereum.on('chainChanged', (newChainId) => {
-        setChainId(parseInt(newChainId, 16));
-        window.location.reload(); // Reload to reset state
+        const parsedChainId = parseInt(newChainId, 16);
+        setChainId(parsedChainId);
+        // Re-initalize provider to ensure it matches the new chain
+        const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+        setProvider(web3Provider);
+        setSigner(web3Provider.getSigner());
+        console.log("Chain changed to:", parsedChainId);
       });
 
       // Check if already connected
