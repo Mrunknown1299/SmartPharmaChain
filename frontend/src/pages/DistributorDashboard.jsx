@@ -39,9 +39,9 @@ const DistributorDashboard = () => {
     try {
       const drugData = await contract.getDrugDetails(batchId);
       const [name, manufacturer, manufactureDate, expiryDate, status, manufacturerId, distributorId, retailerId, consumerId] = drugData;
-
+      
       const statusNames = ['Manufactured', 'Distributed', 'Retailed', 'Sold'];
-
+      
       setDrugDetails({
         batchId,
         name,
@@ -93,7 +93,7 @@ const DistributorDashboard = () => {
       await tx.wait();
 
       toast.success('Drug distributed successfully!');
-
+      
       // Refresh drug details
       await searchDrug();
     } catch (error) {
@@ -116,44 +116,11 @@ const DistributorDashboard = () => {
 
   const canDistribute = drugDetails && drugDetails.statusCode === 0;
 
-  const [isRegistered, setIsRegistered] = useState(false);
-  const [checkingRegistration, setCheckingRegistration] = useState(true);
-
-  React.useEffect(() => {
-    const checkRegistration = async () => {
-      if (contract && account) {
-        try {
-          const result = await contract.distributors(account);
-          setIsRegistered(result);
-        } catch (error) {
-          console.error("Error checking registration:", error);
-        } finally {
-          setCheckingRegistration(false);
-        }
-      }
-    };
-    checkRegistration();
-  }, [contract, account]);
-
   if (!account) {
     return (
       <Container maxWidth="md">
         <Alert severity="warning" sx={{ mt: 2 }}>
           Please connect your wallet to access the Distributor Dashboard.
-        </Alert>
-      </Container>
-    );
-  }
-
-  if (checkingRegistration) {
-    return <Container maxWidth="md"><CircularProgress sx={{ mt: 4 }} /></Container>;
-  }
-
-  if (!isRegistered) {
-    return (
-      <Container maxWidth="md">
-        <Alert severity="error" sx={{ mt: 2 }}>
-          You are not registered as a Distributor. Please contact the Admin.
         </Alert>
       </Container>
     );
@@ -203,7 +170,6 @@ const DistributorDashboard = () => {
               variant="h6"
               component="h1"
               sx={{
-                fontWeight: 600,
                 color: '#8B4513', // Saddle Brown for better contrast
                 fontWeight: 700,
                 fontSize: '1rem',
@@ -219,7 +185,7 @@ const DistributorDashboard = () => {
         </Box>
       </Paper>
 
-      <Grid container spacing={3} justifyContent="center">
+      <Grid container spacing={3}>
         {/* Drug Search */}
         <Grid item xs={12} md={6}>
           <Card>
@@ -228,7 +194,7 @@ const DistributorDashboard = () => {
                 <Search sx={{ mr: 1, verticalAlign: 'middle' }} />
                 Search Drug
               </Typography>
-
+              
               <Box sx={{ mt: 2 }}>
                 <TextField
                   fullWidth
@@ -239,7 +205,7 @@ const DistributorDashboard = () => {
                   sx={{ mb: 2 }}
                   onKeyPress={(e) => e.key === 'Enter' && searchDrug()}
                 />
-
+                
                 <Button
                   fullWidth
                   variant="outlined"
@@ -262,20 +228,20 @@ const DistributorDashboard = () => {
                 <Update sx={{ mr: 1, verticalAlign: 'middle' }} />
                 Distribute Drug
               </Typography>
-
+              
               <Box sx={{ mt: 2 }}>
                 {drugDetails ? (
                   <>
-                    <Alert
-                      severity={canDistribute ? 'info' : 'warning'}
+                    <Alert 
+                      severity={canDistribute ? 'info' : 'warning'} 
                       sx={{ mb: 2 }}
                     >
-                      {canDistribute
+                      {canDistribute 
                         ? 'Drug is ready for distribution'
                         : `Drug is in "${drugDetails.status}" state and cannot be distributed`
                       }
                     </Alert>
-
+                    
                     <Button
                       fullWidth
                       variant="contained"
@@ -304,7 +270,7 @@ const DistributorDashboard = () => {
                 <Typography variant="h6" gutterBottom>
                   Drug Details
                 </Typography>
-
+                
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6} md={3}>
                     <Typography variant="subtitle2" color="text.secondary">
@@ -314,7 +280,7 @@ const DistributorDashboard = () => {
                       {drugDetails.batchId}
                     </Typography>
                   </Grid>
-
+                  
                   <Grid item xs={12} sm={6} md={3}>
                     <Typography variant="subtitle2" color="text.secondary">
                       Drug Name
@@ -323,7 +289,7 @@ const DistributorDashboard = () => {
                       {drugDetails.name}
                     </Typography>
                   </Grid>
-
+                  
                   <Grid item xs={12} sm={6} md={3}>
                     <Typography variant="subtitle2" color="text.secondary">
                       Manufacturer
@@ -332,7 +298,7 @@ const DistributorDashboard = () => {
                       {drugDetails.manufacturer}
                     </Typography>
                   </Grid>
-
+                  
                   <Grid item xs={12} sm={6} md={3}>
                     <Typography variant="subtitle2" color="text.secondary">
                       Status
@@ -344,7 +310,7 @@ const DistributorDashboard = () => {
                       sx={{ mb: 2 }}
                     />
                   </Grid>
-
+                  
                   <Grid item xs={12} sm={6} md={3}>
                     <Typography variant="subtitle2" color="text.secondary">
                       Manufacture Date
@@ -353,7 +319,7 @@ const DistributorDashboard = () => {
                       {drugDetails.manufactureDate}
                     </Typography>
                   </Grid>
-
+                  
                   <Grid item xs={12} sm={6} md={3}>
                     <Typography variant="subtitle2" color="text.secondary">
                       Expiry Date
@@ -362,7 +328,7 @@ const DistributorDashboard = () => {
                       {drugDetails.expiryDate}
                     </Typography>
                   </Grid>
-
+                  
                   <Grid item xs={12} sm={6} md={6}>
                     <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
                       👨‍🔬 Manufacturer Address
@@ -413,27 +379,27 @@ const DistributorDashboard = () => {
                     Supply Chain Progress
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                    <Chip
-                      label="Manufactured"
-                      color="primary"
+                    <Chip 
+                      label="Manufactured" 
+                      color="primary" 
                       size="small"
                       variant={drugDetails.statusCode >= 0 ? 'filled' : 'outlined'}
                     />
-                    <Chip
-                      label="Distributed"
-                      color="info"
+                    <Chip 
+                      label="Distributed" 
+                      color="info" 
                       size="small"
                       variant={drugDetails.statusCode >= 1 ? 'filled' : 'outlined'}
                     />
-                    <Chip
-                      label="Retailed"
-                      color="warning"
+                    <Chip 
+                      label="Retailed" 
+                      color="warning" 
                       size="small"
                       variant={drugDetails.statusCode >= 2 ? 'filled' : 'outlined'}
                     />
-                    <Chip
-                      label="Sold"
-                      color="success"
+                    <Chip 
+                      label="Sold" 
+                      color="success" 
                       size="small"
                       variant={drugDetails.statusCode >= 3 ? 'filled' : 'outlined'}
                     />

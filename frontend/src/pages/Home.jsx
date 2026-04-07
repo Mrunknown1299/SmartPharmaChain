@@ -5,12 +5,11 @@ import {
   Grid,
   Card,
   CardContent,
-  CardActionArea,
+  CardActions,
   Button,
   Box,
   Chip,
   Paper,
-  Stack,
 } from '@mui/material';
 import {
   Security,
@@ -21,8 +20,6 @@ import {
   LocalShipping,
   Store,
   QrCodeScanner,
-  CheckCircle,
-  ArrowForward,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useWeb3 } from '../context/Web3Context';
@@ -57,234 +54,258 @@ const Home = () => {
   const stakeholders = [
     {
       title: 'Manufacturer',
-      description: 'Register drugs & initiate tracking.',
-      icon: <Factory sx={{ fontSize: 48, color: '#1976d2' }} />,
+      description: 'Register new drugs and initiate the supply chain tracking process.',
+      icon: <Factory fontSize="large" />,
       path: '/manufacturer',
       color: 'primary',
     },
     {
       title: 'Distributor',
-      description: 'Manage shipping & distribution.',
-      icon: <LocalShipping sx={{ fontSize: 48, color: '#9c27b0' }} />,
+      description: 'Receive and distribute pharmaceutical products in the supply chain.',
+      icon: <LocalShipping fontSize="large" />,
       path: '/distributor',
       color: 'secondary',
     },
     {
       title: 'Retailer',
-      description: 'Stock management & sales.',
-      icon: <Store sx={{ fontSize: 48, color: '#2e7d32' }} />,
+      description: 'Retail pharmaceutical products to end consumers.',
+      icon: <Store fontSize="large" />,
       path: '/retailer',
       color: 'success',
     },
     {
       title: 'Consumer',
-      description: 'Verify authenticity & history.',
-      icon: <QrCodeScanner sx={{ fontSize: 48, color: '#ed6c02' }} />,
+      description: 'Verify drug authenticity and view complete supply chain history.',
+      icon: <QrCodeScanner fontSize="large" />,
       path: '/consumer',
       color: 'warning',
     },
   ];
 
   return (
-    <Box sx={{ pb: 8 }}>
+    <Container maxWidth="lg">
       {/* Hero Section */}
-      <Box
+      <Paper
+        elevation={0}
         sx={{
-          bgcolor: '#e3f2fd',
-          py: 8,
+          p: 6,
+          mb: 4,
+          background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          borderRadius: 4,
           textAlign: 'center',
-          mb: 6,
-          borderBottom: '1px solid #bbdefb'
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
-        <Container maxWidth="md">
-          <Typography
-            variant="h2"
-            component="h1"
-            gutterBottom
-            sx={{ fontWeight: 800, color: '#0d47a1', letterSpacing: '-1px' }}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)',
+            zIndex: -1,
+          }}
+        />
+        <Typography
+          variant="h2"
+          component="h1"
+          gutterBottom
+          sx={{
+            background: 'linear-gradient(135deg, #4682B4 0%, #FF69B4 50%, #DEB887 100%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            fontWeight: 700,
+            mb: 2,
+            fontSize: '2rem',
+            textShadow: '2px 2px 4px rgba(0,0,0,0.1)',
+          }}
+        >
+          🏥 SmartMediChain
+        </Typography>
+        <Typography
+          variant="h5"
+          component="h2"
+          gutterBottom
+          sx={{
+            fontWeight: 600,
+            color: '#2C3E50',
+            mb: 2,
+            fontSize: '1.2rem',
+            textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
+          }}
+        >
+          Blockchain-Enabled Pharmaceutical Supply Chain
+        </Typography>
+        <Typography
+          variant="body1"
+          sx={{
+            mb: 3,
+            maxWidth: '700px',
+            mx: 'auto',
+            color: '#34495E',
+            lineHeight: 1.6,
+            fontSize: '1rem',
+            fontWeight: 500,
+          }}
+        >
+          Ensuring drug authenticity and safety through transparent, decentralized tracking
+          from manufacturer to consumer using Ethereum blockchain and QR code technology.
+        </Typography>
+        {!account && (
+          <Button
+            variant="contained"
+            size="large"
+            sx={{
+              mt: 2,
+              px: 4,
+              py: 1.5,
+              fontSize: '1.1rem',
+              borderRadius: 3,
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
+                transform: 'translateY(-2px)',
+              },
+            }}
+            onClick={() => window.scrollTo({ top: 600, behavior: 'smooth' })}
           >
-            SmartPharmaChain
-          </Typography>
-          <Typography variant="h5" color="text.secondary" paragraph sx={{ mb: 4, lineHeight: 1.6 }}>
-            The Next-Generation Blockchain Solution for <br /> Pharmaceutical Supply Chain Authentication
-          </Typography>
+            Get Started
+          </Button>
+        )}
+      </Paper>
 
-          <Stack direction="row" spacing={2} justifyContent="center">
-            {account ? (
-              <Chip
-                icon={<CheckCircle />}
-                label="Wallet Connected"
-                color="success"
-                sx={{ px: 2, py: 1, fontSize: '1rem' }}
-              />
-            ) : (
-              <Button
-                variant="contained"
-                size="large"
-                endIcon={<ArrowForward />}
-                sx={{ borderRadius: '50px', px: 4, py: 1.5, fontSize: '1.1rem', fontWeight: 'bold' }}
-                onClick={() => window.scrollTo({ top: 600, behavior: 'smooth' })}
-              >
-                Get Started
-              </Button>
-            )}
-          </Stack>
-        </Container>
-      </Box>
-
-      <Container maxWidth="lg">
-        {/* Features Section */}
-        <Box sx={{ mb: 8 }}>
-          <Typography variant="h4" component="h2" align="center" gutterBottom sx={{ fontWeight: 700, mb: 4 }}>
-            Why SmartPharmaChain?
-          </Typography>
-          <Grid container spacing={3} justifyContent="center" alignItems="stretch">
-            {features.map((feature, index) => (
-              <Grid item xs={12} sm={6} md={3} key={index} sx={{ display: 'flex' }}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 3,
-                    width: '100%',
-                    textAlign: 'center',
-                    bgcolor: 'transparent',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'flex-start'
-                  }}
-                >
-                  <Box
-                    sx={{
-                      mb: 2,
-                      display: 'flex',
-                      p: 2,
-                      borderRadius: '50%',
-                      bgcolor: '#e3f2fd',
-                      color: '#1565c0',
-                      width: 100,
-                      height: 100,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
-                      mx: 'auto' // Ensure horizontal centering
-                    }}
-                  >
-                    {feature.icon}
-                  </Box>
-                  <Typography variant="h6" gutterBottom fontWeight={600}>
-                    {feature.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {feature.description}
-                  </Typography>
-                </Paper>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-
-        {/* Stakeholders Section */}
-        <Box sx={{ mb: 8 }}>
-          <Typography variant="h4" component="h2" align="center" gutterBottom sx={{ fontWeight: 700, mb: 1 }}>
-            Select Your Role
-          </Typography>
-          <Typography variant="body1" align="center" color="text.secondary" sx={{ mb: 5 }}>
-            Access your dedicated dashboard to interact with the supply chain
-          </Typography>
-
-          <Grid container spacing={3} justifyContent="center" alignItems="stretch">
-            {stakeholders.map((stakeholder, index) => (
-              <Grid item xs={12} sm={6} md={3} key={index} sx={{ display: 'flex' }}>
-                <Card
-                  sx={{
-                    width: '100%',
-                    transition: 'all 0.3s ease',
-                    borderRadius: 4,
-                    '&:hover': {
-                      transform: 'translateY(-8px)',
-                      boxShadow: '0 12px 24px rgba(0,0,0,0.1)'
-                    }
-                  }}
-                >
-                  <CardActionArea
-                    onClick={() => navigate(stakeholder.path)}
-                    sx={{ height: '100%', p: 3, textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}
-                  >
-                    <Box
-                      sx={{
-                        mb: 2,
-                        mx: 'auto',
-                        p: 2,
-                        borderRadius: '50%',
-                        bgcolor: `${stakeholder.color}.light`,
-                        color: `${stakeholder.color}.main`,
-                        width: 100,
-                        height: 100,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        opacity: 0.9
-                      }}
-                    >
-                      {stakeholder.icon}
-                    </Box>
-                    <Typography variant="h6" component="div" gutterBottom fontWeight={700}>
-                      {stakeholder.title}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {stakeholder.description}
-                    </Typography>
-                  </CardActionArea>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-
-        {/* How It Works Section */}
-        <Paper elevation={0} sx={{ p: 6, borderRadius: 4, bgcolor: '#f8f9fa', border: '1px solid #e0e0e0' }}>
-          <Typography variant="h4" gutterBottom align="center" sx={{ fontWeight: 700, mb: 4 }}>
-            How It Works
-          </Typography>
-          <Grid container spacing={6}>
-            <Grid item xs={12} md={6}>
-              <Stack spacing={3}>
-                <Box>
-                  <Typography variant="h6" color="primary" fontWeight={600}>1. Digitization</Typography>
-                  <Typography variant="body1">
-                    Manufacturers register drugs on the blockchain, assigning a unique identity to every batch.
-                  </Typography>
-                </Box>
-                <Box>
-                  <Typography variant="h6" color="primary" fontWeight={600}>2. Tracking</Typography>
-                  <Typography variant="body1">
-                    Movement is recorded immutably as products flow from distributors to retailers.
-                  </Typography>
-                </Box>
-              </Stack>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Stack spacing={3}>
-                <Box>
-                  <Typography variant="h6" color="primary" fontWeight={600}>3. Verification</Typography>
-                  <Typography variant="body1">
-                    Stakeholders can verify the provenance and safety of drugs instantly using QR codes.
-                  </Typography>
-                </Box>
-                <Box>
-                  <Typography variant="h6" color="primary" fontWeight={600}>4. Trust</Typography>
-                  <Typography variant="body1">
-                    Consumers can be 100% confident in the authenticity of their medication.
-                  </Typography>
-                </Box>
-              </Stack>
-            </Grid>
-          </Grid>
+      {/* Connection Status */}
+      {account && (
+        <Paper
+          elevation={0}
+          sx={{
+            p: 3,
+            mb: 4,
+            background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(139, 195, 74, 0.1) 100%)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(76, 175, 80, 0.3)',
+            borderRadius: 3,
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
+            <VerifiedUser sx={{ color: 'success.main', fontSize: 32 }} />
+            <Typography
+              variant="h6"
+              sx={{
+                color: 'success.dark',
+                fontWeight: 600,
+              }}
+            >
+              🎉 Wallet Connected - Ready to interact with SmartMediChain
+            </Typography>
+          </Box>
         </Paper>
-      </Container>
-    </Box>
+      )}
+
+      {/* Features Section */}
+      <Typography variant="h5" component="h2" gutterBottom sx={{ mb: 3, textAlign: 'center', fontSize: '1.1rem' }}>
+        Key Features
+      </Typography>
+      <Grid container spacing={3} sx={{ mb: 6 }} justifyContent="center">
+        {features.map((feature, index) => (
+          <Grid item xs={12} sm={6} md={3} size={{ xs: 12, sm: 6, md: 3 }} key={index}>
+            <Card sx={{ height: '100%', textAlign: 'center' }}>
+              <CardContent>
+                <Box sx={{ mb: 2 }}>{feature.icon}</Box>
+                <Typography variant="h6" component="h3" gutterBottom>
+                  {feature.title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {feature.description}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+
+      {/* Stakeholders Section */}
+      <Typography variant="h4" component="h2" gutterBottom sx={{ mb: 3, textAlign: 'center' }}>
+        Stakeholder Dashboards
+      </Typography>
+      <Grid container spacing={3} sx={{ mb: 6 }} justifyContent="center">
+        {stakeholders.map((stakeholder, index) => (
+          <Grid item xs={12} sm={6} md={3} size={{ xs: 12, sm: 6, md: 3 }} key={index}>
+            <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <CardContent sx={{ flexGrow: 1, textAlign: 'center' }}>
+                <Chip
+                  icon={stakeholder.icon}
+                  label={stakeholder.title}
+                  color={stakeholder.color}
+                  sx={{ mb: 2, fontSize: '1rem', p: 2 }}
+                />
+                <Typography variant="body2" color="text.secondary">
+                  {stakeholder.description}
+                </Typography>
+              </CardContent>
+              <CardActions sx={{ justifyContent: 'center', pb: 2 }}>
+                <Button
+                  variant="contained"
+                  color={stakeholder.color}
+                  onClick={() => navigate(stakeholder.path)}
+                  sx={{ textTransform: 'none' }}
+                >
+                  Access Dashboard
+                </Button>
+              </CardActions>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+
+      {/* How It Works Section */}
+      <Paper elevation={2} sx={{ p: 4, mb: 4 }}>
+        <Typography variant="h4" component="h2" gutterBottom sx={{ textAlign: 'center', mb: 3 }}>
+          How It Works
+        </Typography>
+        <Grid container spacing={3} justifyContent="center">
+          <Grid item xs={12} md={6} size={{ xs: 12, md: 6 }}>
+            <Typography variant="h6" gutterBottom>
+              1. Drug Registration
+            </Typography>
+            <Typography variant="body2" paragraph>
+              Manufacturers register each drug batch on the blockchain with unique identifiers,
+              creating an immutable record of origin.
+            </Typography>
+
+            <Typography variant="h6" gutterBottom>
+              2. Supply Chain Tracking
+            </Typography>
+            <Typography variant="body2" paragraph>
+              Each transfer between distributor, retailer, and consumer is recorded on the
+              blockchain, creating a complete audit trail.
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={6} size={{ xs: 12, md: 6 }}>
+            <Typography variant="h6" gutterBottom>
+              3. QR Code Generation
+            </Typography>
+            <Typography variant="body2" paragraph>
+              Each drug package receives a unique QR code that links to its blockchain record,
+              enabling instant verification.
+            </Typography>
+
+            <Typography variant="h6" gutterBottom>
+              4. Consumer Verification
+            </Typography>
+            <Typography variant="body2" paragraph>
+              Consumers can scan QR codes to verify authenticity, check expiry dates,
+              and view the complete supply chain history.
+            </Typography>
+          </Grid>
+        </Grid>
+      </Paper>
+    </Container>
   );
 };
 

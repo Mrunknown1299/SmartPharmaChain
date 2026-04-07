@@ -30,7 +30,6 @@ import {
   CheckCircle,
   AccountBalance,
   Analytics,
-  DeviceThermostat,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useWeb3 } from '../context/Web3Context';
@@ -88,37 +87,35 @@ const Navbar = () => {
     { label: 'Distributor', path: '/distributor', icon: <LocalShipping /> },
     { label: 'Retailer', path: '/retailer', icon: <Store /> },
     { label: 'Consumer', path: '/consumer', icon: <VerifiedUser /> },
-    { label: 'IoT Monitor', path: '/monitoring', icon: <DeviceThermostat /> },
     { label: 'Analytics', path: '/analytics', icon: <Analytics /> },
   ];
 
   return (
-    <AppBar position="static">
+    <AppBar position="static" sx={{ mb: 2 }}>
       <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1, cursor: 'pointer' }} onClick={() => navigate('/')}>
-          SmartPharmaChain
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{
+            flexGrow: 1,
+            cursor: 'pointer',
+            fontSize: '1.1rem',
+            fontWeight: 600,
+          }}
+          onClick={() => navigate('/')}
+        >
+          🏥 SmartMediChain
         </Typography>
 
         {/* Desktop Navigation */}
-        <Box sx={{ display: { xs: 'none', lg: 'flex' }, gap: 2 }}>
+        <Box sx={{ display: { xs: 'none', lg: 'flex' }, gap: 1, mr: 2 }}>
           {navigationItems.map((item) => (
             <Button
               key={item.path}
               color="inherit"
+              startIcon={item.icon}
               onClick={() => navigate(item.path)}
-              sx={{
-                textTransform: 'none',
-                fontSize: '0.95rem',
-                fontWeight: 500,
-                borderRadius: '20px', // Oval shape
-                bgcolor: 'rgba(255, 255, 255, 0.15)', // Light background
-                px: 3, // Horizontal padding for oval width
-                py: 1,
-                '&:hover': {
-                  bgcolor: 'rgba(255, 255, 255, 0.3)',
-                },
-                transition: 'all 0.2s'
-              }}
+              sx={{ textTransform: 'none' }}
             >
               {item.label}
             </Button>
@@ -126,8 +123,11 @@ const Navbar = () => {
         </Box>
 
         {/* Mobile Navigation */}
-        <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
-          <IconButton color="inherit" onClick={handleMenuOpen}>
+        <Box sx={{ display: { xs: 'flex', lg: 'none' } }}>
+          <IconButton
+            color="inherit"
+            onClick={handleMenuOpen}
+          >
             <MoreVert />
           </IconButton>
           <Menu
@@ -143,39 +143,123 @@ const Navbar = () => {
                   handleMenuClose();
                 }}
               >
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <Typography variant="inherit">{item.label}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  {item.icon}
+                  {item.label}
+                </Box>
               </MenuItem>
             ))}
           </Menu>
         </Box>
 
+        {/* Network Status */}
+        {account && (
+          <Chip
+            label={getNetworkName()}
+            color={isCorrectNetwork() ? 'success' : 'error'}
+            size="small"
+            sx={{ mr: 1 }}
+          />
+        )}
+
+        {/* Wallet Connection */}
         {account ? (
-          <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
-            <Chip
-              label={formatAddress(account)}
-              color="secondary"
-              onDelete={handleWalletMenuOpen}
-              deleteIcon={<MoreVert />}
-            />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Tooltip title="Wallet Options">
+              <Button
+                onClick={handleWalletMenuOpen}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  px: 2,
+                  py: 1,
+                  borderRadius: 3,
+                  background: 'linear-gradient(135deg, #87CEEB 0%, #FFB6C1 100%)',
+                  color: '#2C3E50',
+                  textTransform: 'none',
+                  boxShadow: '0 4px 15px rgba(135, 206, 235, 0.3)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #B0E0E6 0%, #FFC0CB 100%)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 6px 20px rgba(135, 206, 235, 0.4)',
+                  },
+                }}
+              >
+                <Avatar
+                  sx={{
+                    width: 28,
+                    height: 28,
+                    background: 'linear-gradient(135deg, #87CEEB 0%, #FFB6C1 100%)',
+                    fontSize: '14px',
+                  }}
+                >
+                  <CheckCircle fontSize="small" sx={{ color: '#2C3E50' }} />
+                </Avatar>
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                  <Typography variant="caption" sx={{ fontSize: '0.7rem', color: '#2C3E50', opacity: 0.8 }}>
+                    Connected
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 600, color: '#2C3E50', fontSize: '0.85rem' }}>
+                    {formatAddress(account)}
+                  </Typography>
+                </Box>
+              </Button>
+            </Tooltip>
+
             <Menu
               anchorEl={walletMenuAnchor}
               open={Boolean(walletMenuAnchor)}
               onClose={handleWalletMenuClose}
+              PaperProps={{
+                sx: {
+                  mt: 1,
+                  minWidth: 200,
+                  borderRadius: 2,
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                },
+              }}
             >
               <MenuItem onClick={copyAddress}>
-                <ListItemIcon><ContentCopy fontSize="small" /></ListItemIcon>
-                <ListItemText>Copy Address</ListItemText>
+                <ListItemIcon>
+                  <ContentCopy fontSize="small" />
+                </ListItemIcon>
+                <ListItemText primary="Copy Address" />
               </MenuItem>
-              <MenuItem onClick={handleDisconnect}>
-                <ListItemIcon><Logout fontSize="small" /></ListItemIcon>
-                <ListItemText>Disconnect</ListItemText>
+              <Divider />
+              <MenuItem onClick={handleDisconnect} sx={{ color: 'error.main' }}>
+                <ListItemIcon>
+                  <Logout fontSize="small" sx={{ color: 'error.main' }} />
+                </ListItemIcon>
+                <ListItemText primary="Disconnect Wallet" />
               </MenuItem>
             </Menu>
           </Box>
         ) : (
-          <Button color="inherit" onClick={connectWallet} startIcon={<AccountBalanceWallet />}>
-            Connect Wallet
+          <Button
+            variant="contained"
+            startIcon={<AccountBalance />}
+            onClick={connectWallet}
+            sx={{
+              textTransform: 'none',
+              borderRadius: 25,
+              px: 4,
+              py: 1.5,
+              fontSize: '1rem',
+              fontWeight: 600,
+              background: 'linear-gradient(135deg, #87CEEB 0%, #FFB6C1 50%, #FFDAB9 100%)',
+              color: '#2C3E50',
+              boxShadow: '0 6px 20px rgba(135, 206, 235, 0.4)',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #B0E0E6 0%, #FFC0CB 50%, #FFE4B5 100%)',
+                transform: 'translateY(-3px)',
+                boxShadow: '0 8px 25px rgba(135, 206, 235, 0.5)',
+              },
+            }}
+          >
+            🔗 Connect Wallet
           </Button>
         )}
       </Toolbar>

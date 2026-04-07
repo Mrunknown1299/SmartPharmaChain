@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { toast } from 'react-toastify';
-import ContractAddress from '../contracts/contract-address.json';
-import ContractArtifact from '../contracts/PharmaceuticalSupplyChain.json';
+import deployedContract from '../contracts/contract-address.json';
+import contractArtifact from '../contracts/PharmaceuticalSupplyChain.json';
 
 const Web3Context = createContext();
 
@@ -23,10 +23,9 @@ export const Web3Provider = ({ children }) => {
   const [chainId, setChainId] = useState(null);
 
   // Contract configuration
-  // Automatically load the deployed address and ABI
-  const CONTRACT_ADDRESS = ContractAddress.PharmaceuticalSupplyChain;
-  // Use .abi from the artifact
-  const CONTRACT_ABI = ContractArtifact.abi;
+  const CONTRACT_ADDRESS = deployedContract.PharmaceuticalSupplyChain || process.env.REACT_APP_CONTRACT_ADDRESS || "0x279fFe8FB7A99D6AE2C3295485a7f8E946980Dc7";
+console.log('Final CONTRACT_ADDRESS:', CONTRACT_ADDRESS);
+  const CONTRACT_ABI = contractArtifact.abi;
 
   // Connect to MetaMask
   const connectWallet = async () => {
@@ -154,13 +153,8 @@ export const Web3Provider = ({ children }) => {
       });
 
       window.ethereum.on('chainChanged', (newChainId) => {
-        const parsedChainId = parseInt(newChainId, 16);
-        setChainId(parsedChainId);
-        // Re-initalize provider to ensure it matches the new chain
-        const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
-        setProvider(web3Provider);
-        setSigner(web3Provider.getSigner());
-        console.log("Chain changed to:", parsedChainId);
+        setChainId(parseInt(newChainId, 16));
+        window.location.reload(); // Reload to reset state
       });
 
       // Check if already connected

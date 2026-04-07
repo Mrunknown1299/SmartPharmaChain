@@ -145,19 +145,16 @@ npm run dev
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 👥 Team
 
-- **Developer**: Your Name
+- **Developer**: R Sabarinathan
 - **Project Type**: Final Year Project
-- **Institution**: Your University
+- **Institution**: MVIT
 
 ## 📞 Support
 
-For support, email your-email@example.com or create an issue in this repository.
+For support, email your-sabarinathan2004.com or create an issue in this repository.
 
 ---
 
